@@ -3,15 +3,15 @@ package model;
 public class User {
 
 	private int id,addressId,libraryCardId,totalBooksCheckedout;
-	private String name, password, userType, email,phone,dateOfMembership;
-	private Boolean status;
+	private String name, password, userType, email,phone,dateOfMembership,status;
+	
 
 	public User() {
 
 	}
 	
 	public User(int id, int addressId, int libraryCardId, int totalBooksCheckedout, String name, String password,
-			String userType, String email, String phone, String dateOfMembership, Boolean status) {
+			String userType, String email, String phone, String dateOfMembership, String status) {
 		super();
 		this.id = id;
 		this.addressId = addressId;
@@ -106,12 +106,14 @@ public class User {
 		this.dateOfMembership = dateOfMembership;
 	}
 
-	public Boolean getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Boolean status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	
 
 }

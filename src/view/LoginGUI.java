@@ -1,10 +1,12 @@
 package view;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,9 +42,7 @@ public class LoginGUI extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		
-	
-		
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -67,7 +67,6 @@ public class LoginGUI extends JFrame {
 		w_pane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(w_pane);
 		w_pane.setLayout(null);
-
 
 		JLabel login_lbl_header = new JLabel("Password Manager Please Login");
 		login_lbl_header.setFont(new Font("Ubuntu", Font.BOLD, 18));
@@ -101,7 +100,7 @@ public class LoginGUI extends JFrame {
 		JButton login_btn_singup = new JButton("sign up");
 		login_btn_singup.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO Signup page
+				// TODO Signup page
 //				SignupGUI sG = new SignupGUI();
 //				sG.setVisible(true);
 //				dispose();
@@ -171,15 +170,31 @@ public class LoginGUI extends JFrame {
 		}
 
 		if (validationOK) {
+			
+			
 
 			try {
+
+				String query = "SELECT * FROM user WHERE email=? AND name=? AND password=?";
 				Connection con = conn.connDb();
-				Statement st;
-				st = con.createStatement();
-				ResultSet rs = st.executeQuery("SELECT * FROM user WHERE email ="  +login_txt_email.getText()+
-						"AND name=" +login_txt_name.getText()+ " AND password =" + String.valueOf(login_txt_pass.getPassword()) );
+
+				PreparedStatement preparedStatement = con.prepareStatement(query);
+
+				preparedStatement.setString(1, login_txt_email.getText());
+				preparedStatement.setString(2, login_txt_name.getText());
+				preparedStatement.setString(3, String.valueOf(login_txt_pass.getPassword()));
+				ResultSet rs = preparedStatement.executeQuery();
+				
+				if(rs!=null) {
+					System.out.println(preparedStatement);	
+				}
+				
+
 				while (rs.next()) {
-					if (login_txt_name.getText().equals(rs.getString("username"))
+					
+				
+					
+					if (login_txt_name.getText().equals(rs.getString("name"))
 							&& login_txt_email.getText().equals(rs.getString("email"))
 							&& String.valueOf(login_txt_pass.getPassword()).equals(rs.getString("password"))) {
 						User userObj = new User();
@@ -188,32 +203,31 @@ public class LoginGUI extends JFrame {
 						userObj.setEmail(rs.getString("email"));
 						userObj.setPhone(rs.getString("phone"));
 						userObj.setUserType(rs.getString("user_type"));
-						userObj.setStatus(rs.getBoolean("status"));
+						userObj.setStatus(rs.getString("status"));
 						userObj.setAddressId(rs.getInt("address_id"));
 						userObj.setDateOfMembership(rs.getString("date_of_membership"));
 						userObj.setTotalBooksCheckedout(rs.getInt("total_books_checkedout"));
 						userObj.setLibraryCardId(rs.getInt("library_card_id"));
 						System.out.println(userObj.getName());
-						// TODO send member or librarian gui 
-						//UserGUI uGUI = new UserGUI(userObj);
-						//uGUI.setVisible(true);
-						accountNotFound =false;
+						// TODO send member or librarian or admin gui
+						// UserGUI uGUI = new UserGUI(userObj);
+						// uGUI.setVisible(true);
+						accountNotFound = false;
 						dispose();
 						break;
-						
 
-					}else {
-						accountNotFound=true;
+					} else {
+						accountNotFound = true;
 					}
-					
-				}
-				if(accountNotFound) {
-					JOptionPane.showMessageDialog(w_pane,"Account not found!", "DB Error", JOptionPane.ERROR_MESSAGE);
-				}
 
+				}
+				if (accountNotFound) {
+					JOptionPane.showMessageDialog(w_pane, "Account not found!", "DB Error", JOptionPane.ERROR_MESSAGE);
+				}
 
 			} catch (SQLException e1) {
-				JOptionPane.showMessageDialog(w_pane, e1.getMessage(),"DB Error", JOptionPane.ERROR_MESSAGE);
+				System.out.println(e1.getMessage());
+				JOptionPane.showMessageDialog(w_pane, "DB error", "DB Error", JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
 			}
 		} else {
