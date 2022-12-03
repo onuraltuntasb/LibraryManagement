@@ -9,7 +9,7 @@ public class DBConnection {
 	
 	public Connection connDb() {
 		try {
-			this.c = DriverManager.getConnection("jdbc:mysql://localhost:3306/password_manager","root","123456789");
+			this.c = DriverManager.getConnection("jdbc:mysql://localhost:3306/library_management","root","123456789");
 		} catch (SQLException e) {
 			
 			e.printStackTrace();
