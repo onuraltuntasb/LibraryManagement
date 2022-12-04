@@ -184,16 +184,9 @@ public class LoginGUI extends JFrame {
 				preparedStatement.setString(2, login_txt_name.getText());
 				preparedStatement.setString(3, String.valueOf(login_txt_pass.getPassword()));
 				ResultSet rs = preparedStatement.executeQuery();
-				
-				if(rs!=null) {
-					System.out.println(preparedStatement);	
-				}
-				
 
 				while (rs.next()) {
-					
-				
-					
+
 					if (login_txt_name.getText().equals(rs.getString("name"))
 							&& login_txt_email.getText().equals(rs.getString("email"))
 							&& String.valueOf(login_txt_pass.getPassword()).equals(rs.getString("password"))) {
