@@ -14,9 +14,12 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import helper.DBConnection;
+import helper.PasswordOps;
 import model.LibraryCard;
 import model.User;
 
@@ -30,6 +33,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class AdminGUI extends JFrame {
 
@@ -41,17 +46,22 @@ public class AdminGUI extends JFrame {
 	private JTextField txt_city;
 	private JTextField txt_country;
 	private JTextField txt_state;
-	
+
 	private JComboBox cb_user_type;
 	private JComboBox cb_status;
-	
+
 	private JTable table_show;
+
+	private JTextField txt_zipcode;
+	private JTextField txt_password;
 
 	private DefaultTableModel userTableModel = null;
 	private Object[] userTableData = null;
 
+	DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	Date date = new Date();
+
 	static User user = new User();
-	static LibraryCard lCard = new LibraryCard();
 
 	private DBConnection conn = new DBConnection();
 	private Statement st = null;
@@ -59,8 +69,10 @@ public class AdminGUI extends JFrame {
 
 	private Connection con = conn.connDb();
 	private PreparedStatement preparedStatement = null;
-	private JTextField txt_zipcode;
-	private JTextField txt_password;
+
+	private int delUserId = -1;
+	private int delUserAddressId = -1;
+	private int delUserLibraryCardId = -1;
 
 	/**
 	 * Launch the application.
@@ -164,6 +176,12 @@ public class AdminGUI extends JFrame {
 		w_pane.add(txt_state);
 
 		JButton btn_add = new JButton("add");
+		btn_add.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btn_add_ActionPerformed();
+			}
+
+		});
 		btn_add.setBounds(405, 220, 80, 25);
 		w_pane.add(btn_add);
 
@@ -172,6 +190,11 @@ public class AdminGUI extends JFrame {
 		w_pane.add(btn_edit);
 
 		JButton btn_delete = new JButton("delete");
+		btn_delete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btn_delete_ActionPerformed();
+			}
+		});
 		btn_delete.setBounds(639, 220, 80, 25);
 		w_pane.add(btn_delete);
 
@@ -182,6 +205,21 @@ public class AdminGUI extends JFrame {
 		table_show = new JTable();
 		scrollPane.setViewportView(table_show);
 
+		table_show.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+
+				try {
+					delUserId = (int) table_show.getValueAt(table_show.getSelectedRow(), 0);
+					delUserAddressId = (int) table_show.getValueAt(table_show.getSelectedRow(), 9);
+					delUserLibraryCardId = (int) table_show.getValueAt(table_show.getSelectedRow(), 10);
+				} catch (Exception e2) {
+
+				}
+
+			}
+		});
+
 		JLabel lbl_zipcode = new JLabel("zipcode :");
 		lbl_zipcode.setBounds(23, 250, 70, 15);
 		w_pane.add(lbl_zipcode);
@@ -190,22 +228,23 @@ public class AdminGUI extends JFrame {
 		txt_zipcode.setColumns(10);
 		txt_zipcode.setBounds(120, 250, 220, 19);
 		w_pane.add(txt_zipcode);
-		
+
 		JLabel lbl_password = new JLabel("password :");
 		lbl_password.setBounds(23, 75, 70, 15);
 		w_pane.add(lbl_password);
-		
+
 		txt_password = new JTextField();
 		txt_password.setColumns(10);
 		txt_password.setBounds(120, 73, 220, 19);
 		w_pane.add(txt_password);
-		
+
 		JLabel lbl_status = new JLabel("status :");
 		lbl_status.setBounds(23, 125, 70, 15);
 		w_pane.add(lbl_status);
-		
+
 		cb_status = new JComboBox();
-		cb_status.setModel(new DefaultComboBoxModel(new String[] {"ACTIVE", "CLOSED", "CANCELED", "BLACKLISTED", "NONE"}));
+		cb_status.setModel(
+				new DefaultComboBoxModel(new String[] { "ACTIVE", "CLOSED", "CANCELED", "BLACKLISTED", "NONE" }));
 		cb_status.setBounds(120, 125, 220, 24);
 		w_pane.add(cb_status);
 
@@ -213,10 +252,24 @@ public class AdminGUI extends JFrame {
 
 	}
 
+	public void btn_add_ActionPerformed() {
+		addUser();
+	}
+
+	public void btn_delete_ActionPerformed() {
+
+		if (delUserId != -1) {
+			deleteUser(delUserId);
+		} else {
+			System.out.println(delUserId + "delUserId");
+		}
+
+	}
+
 	public void userTableFetch() {
 
 		userTableModel = new DefaultTableModel();
-		Object[] colUserTableName = new Object[9];
+		Object[] colUserTableName = new Object[11];
 		colUserTableName[0] = "ID";
 		colUserTableName[1] = "Password";
 		colUserTableName[2] = "Status";
@@ -226,19 +279,21 @@ public class AdminGUI extends JFrame {
 		colUserTableName[6] = "UserType";
 		colUserTableName[7] = "DOM";
 		colUserTableName[8] = "TBC";
+		colUserTableName[9] = "AI";
+		colUserTableName[10] = "LCI";
 
 		userTableModel.setColumnIdentifiers(colUserTableName);
-		userTableData = new Object[9];
+		userTableData = new Object[11];
 
 		try {
 
 			System.out.println(user.getUserList().get(0).getPassword());
 
-//			if(userTableModel!=null && table_show.getModel()!=null ) {
-//				table_show.setModel(userTableModel);
-//				DefaultTableModel clearModel = (DefaultTableModel) table_show.getModel();
-//				clearModel.setRowCount(0);
-//			}
+			if (userTableModel != null && table_show.getModel() != null) {
+				table_show.setModel(userTableModel);
+				DefaultTableModel clearModel = (DefaultTableModel) table_show.getModel();
+				clearModel.setRowCount(0);
+			}
 
 			for (int i = 0; i < user.getUserList().size(); i++) {
 				userTableData[0] = user.getUserList().get(i).getId();
@@ -250,6 +305,8 @@ public class AdminGUI extends JFrame {
 				userTableData[6] = user.getUserList().get(i).getUserType();
 				userTableData[7] = user.getUserList().get(i).getDateOfMembership();
 				userTableData[8] = user.getUserList().get(i).getTotalBooksCheckedout();
+				userTableData[9] = user.getUserList().get(i).getAddressId();
+				userTableData[10] = user.getUserList().get(i).getLibraryCardId();
 
 				userTableModel.addRow(userTableData);
 
@@ -267,33 +324,43 @@ public class AdminGUI extends JFrame {
 	}
 
 	public void addUser() {
-		
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		Date date = new Date();
-		System.out.println(dateFormat.format(date));
-		
-		//fk parameter if doesnt work call first them.
-		
+
+		int fkAddressId = -1;
+		int fkLibraryCardId = -1;
 
 		try {
-			String query = "INSERT INTO user (password,status,name,email,phone,user_type,address_id,date_of_membership,total_books_checkedout,library_card) VALUES (?,?,?,?,?,?,?,?,?,?)";
+			fkAddressId = (int) addUserAddress();
+		} catch (Exception e) {
+			System.out.println(fkAddressId);
+		}
+
+		try {
+			fkLibraryCardId = (int) addUserLibraryCard();
+		} catch (Exception e) {
+			System.out.println(fkLibraryCardId);
+		}
+
+		try {
+			String query = "INSERT INTO user (password,status,name,email,phone,user_type,address_id,date_of_membership,total_books_checkedout,library_card_id) VALUES (?,?,?,?,?,?,?,?,?,?)";
 			st = con.createStatement();
 			preparedStatement = con.prepareStatement(query);
 
-			preparedStatement.setString(1,txt_password.getText());
-			preparedStatement.setString(2,String.valueOf(cb_status.getSelectedItem()));
-			preparedStatement.setString(3,txt_name.getText());
-			preparedStatement.setString(4,txt_email.getText());
-			preparedStatement.setString(5,txt_phone.getText());
-			preparedStatement.setString(6,String.valueOf(cb_user_type.getSelectedItem()));
-			preparedStatement.setInt(7,(int)(addUserAddress()));
-			preparedStatement.setDate(8,new java.sql.Date(date.getTime()));
-			preparedStatement.setInt(9,0);
-			preparedStatement.setInt(10,(int)(addUserLibraryCard()));
-			
+			preparedStatement.setString(1, txt_password.getText());
+			preparedStatement.setString(2, String.valueOf(cb_status.getSelectedItem()));
+			preparedStatement.setString(3, txt_name.getText());
+			preparedStatement.setString(4, txt_email.getText());
+			preparedStatement.setString(5, txt_phone.getText());
+			preparedStatement.setString(6, String.valueOf(cb_user_type.getSelectedItem()));
+			preparedStatement.setInt(7, fkAddressId);
+			preparedStatement.setDate(8, new java.sql.Date(date.getTime()));
+			preparedStatement.setInt(9, 0);
+			preparedStatement.setInt(10, fkLibraryCardId);
+
 			preparedStatement.executeUpdate();
 
-			JOptionPane.showMessageDialog(new JFrame(), "added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(new JFrame(), " user added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+
+			userTableFetch();
 
 		} catch (SQLException e1) {
 
@@ -307,10 +374,10 @@ public class AdminGUI extends JFrame {
 		long rValue = -1;
 
 		try {
-			String query = "INSERT INTO address (strees_address,city,state,zipcode,country) VALUES (?,?,?,?,?)";
-					
+			String query = "INSERT INTO address (street_address,city,state,zipcode,country) VALUES (?,?,?,?,?)";
+
 			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
+			preparedStatement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
 			preparedStatement.setString(1, txt_street.getText());
 			preparedStatement.setString(2, txt_city.getText());
@@ -332,7 +399,7 @@ public class AdminGUI extends JFrame {
 				}
 			}
 
-			JOptionPane.showMessageDialog(new JFrame(), "added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(new JFrame(), " address added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (SQLException e1) {
 
@@ -343,26 +410,19 @@ public class AdminGUI extends JFrame {
 	}
 
 	public long addUserLibraryCard() {
-		
+
 		long rValue = -1;
-		
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		Date date = new Date();
-		System.out.println(dateFormat.format(date));
-		
-		
-		
-		
+
 		try {
 			String query = "INSERT INTO library_card (barcode,issuedat,active) VALUES (?,?,?)";
-					
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
 
-			preparedStatement.setString(1,lCard.getBardcode() );
-			preparedStatement.setDate(2,new java.sql.Date(date.getTime()));
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+
+			// TODO barcode string is coming null fix this later
+			preparedStatement.setString(1, LibraryCard.createBarcode());
+			preparedStatement.setDate(2, new java.sql.Date(date.getTime()));
 			preparedStatement.setInt(3, 1);
-		
 
 			int affectedRows = preparedStatement.executeUpdate();
 
@@ -378,7 +438,8 @@ public class AdminGUI extends JFrame {
 				}
 			}
 
-			JOptionPane.showMessageDialog(new JFrame(), "added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(new JFrame(), "library_card added!", "Dialog",
+					JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (SQLException e1) {
 
@@ -386,10 +447,77 @@ public class AdminGUI extends JFrame {
 		}
 
 		return rValue;
-		
-		
 
-		
+	}
+
+	public void deleteUser(int id) {
+
+		try {
+			String query = "DELETE FROM user WHERE id=?";
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+
+			preparedStatement.setInt(1, id);
+			preparedStatement.executeUpdate();
+
+			JOptionPane.showMessageDialog(new JFrame(), " user deleted!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+
+			userTableFetch();
+
+			// TODO can be added del or keep address feature
+
+			deleteAddress(delUserAddressId);
+
+			deleteLibraryCard(delUserLibraryCardId);
+
+		} catch (SQLException e1) {
+
+			e1.printStackTrace();
+		}
+
+	}
+
+	public void deleteAddress(int addressId) {
+
+		try {
+			String query = "DELETE FROM address WHERE id=?";
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+
+			preparedStatement.setInt(1, addressId);
+			preparedStatement.executeUpdate();
+
+			JOptionPane.showMessageDialog(new JFrame(), " address deleted!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+
+			userTableFetch();
+
+		} catch (SQLException e1) {
+
+			e1.printStackTrace();
+		}
+
+	}
+
+	public void deleteLibraryCard(int libraryCardId) {
+
+		try {
+			String query = "DELETE FROM library_card WHERE id=?";
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+
+			preparedStatement.setInt(1, libraryCardId);
+			preparedStatement.executeUpdate();
+
+			JOptionPane.showMessageDialog(new JFrame(), " library card deleted!", "Dialog",
+					JOptionPane.INFORMATION_MESSAGE);
+
+			userTableFetch();
+
+		} catch (SQLException e1) {
+
+			e1.printStackTrace();
+		}
+
 	}
 
 }

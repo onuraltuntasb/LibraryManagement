@@ -26,7 +26,7 @@ public class LibraryCard {
 
 
 
-	public static String createBarcode() {
+	public static  String createBarcode() {
 
 		// FEATURE barcode could be change with real barcode image
 		// its just for demo string
