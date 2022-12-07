@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import helper.DBConnection;
@@ -73,6 +75,9 @@ public class AdminGUI extends JFrame {
 	private int delUserId = -1;
 	private int delUserAddressId = -1;
 	private int delUserLibraryCardId = -1;
+
+	// TODO form validations and move functions in relative models remove globals and constants
+	// TODO update event is not firing
 
 	/**
 	 * Launch the application.
@@ -205,10 +210,33 @@ public class AdminGUI extends JFrame {
 		table_show = new JTable();
 		scrollPane.setViewportView(table_show);
 
+		table_show.getModel().addTableModelListener(new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				System.out.println(e);
+
+				if (e.getType() == TableModelEvent.UPDATE) {
+
+					int updateUserId = (int) table_show.getValueAt(table_show.getSelectedRow(), 0);
+					String selectPassword = (String) table_show.getValueAt(table_show.getSelectedRow(), 1);
+					String selectStatus = (String) table_show.getValueAt(table_show.getSelectedRow(), 2);
+					String selectName = (String) table_show.getValueAt(table_show.getSelectedRow(), 3);
+					String selectEmail = (String) table_show.getValueAt(table_show.getSelectedRow(), 4);
+					String selectPhone = (String) table_show.getValueAt(table_show.getSelectedRow(), 5);
+					String selectUserType = (String) table_show.getValueAt(table_show.getSelectedRow(), 6);
+					int selectTBC = (int) table_show.getValueAt(table_show.getSelectedRow(), 7);
+					updateUser(selectPassword, selectStatus, selectName, selectEmail, selectPhone, selectUserType,
+							selectTBC, updateUserId);
+				}
+
+			}
+		});
+
 		table_show.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-
+				// System.out.println(e);
 				try {
 					delUserId = (int) table_show.getValueAt(table_show.getSelectedRow(), 0);
 					delUserAddressId = (int) table_show.getValueAt(table_show.getSelectedRow(), 9);
@@ -257,13 +285,7 @@ public class AdminGUI extends JFrame {
 	}
 
 	public void btn_delete_ActionPerformed() {
-
-		if (delUserId != -1) {
-			deleteUser(delUserId);
-		} else {
-			System.out.println(delUserId + "delUserId");
-		}
-
+		deleteUser(delUserId);
 	}
 
 	public void userTableFetch() {
@@ -287,8 +309,6 @@ public class AdminGUI extends JFrame {
 
 		try {
 
-			System.out.println(user.getUserList().get(0).getPassword());
-
 			if (userTableModel != null && table_show.getModel() != null) {
 				table_show.setModel(userTableModel);
 				DefaultTableModel clearModel = (DefaultTableModel) table_show.getModel();
@@ -310,10 +330,6 @@ public class AdminGUI extends JFrame {
 
 				userTableModel.addRow(userTableData);
 
-			}
-
-			for (int i = 0; i < userTableData.length; i++) {
-				System.out.println(userTableData[i].toString());
 			}
 
 			table_show.setModel(userTableModel);
@@ -367,6 +383,37 @@ public class AdminGUI extends JFrame {
 			e1.printStackTrace();
 		}
 
+	}
+
+	public void updateUser(String password, String status, String name, String email, String phone, String userType,
+			int tbc, int id) {
+
+		// except address, library_card and dom because no need to update so much data
+		// at admin panel. Its job of librarian
+
+		try {
+			String query = "UPDATE user SET password=?,status=?,name=?,email=?,phone=?,user_type=?,total_books_checkedout=? WHERE id=?";
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+
+			preparedStatement.setString(1, password);
+			preparedStatement.setString(2, status);
+			preparedStatement.setString(3, email);
+			preparedStatement.setString(4, phone);
+			preparedStatement.setString(5, userType);
+			preparedStatement.setInt(6, tbc);
+			preparedStatement.setInt(7, id);
+
+			preparedStatement.executeUpdate();
+
+			JOptionPane.showMessageDialog(new JFrame(), " user updated!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+
+			userTableFetch();
+
+		} catch (SQLException e1) {
+
+			e1.printStackTrace();
+		}
 	}
 
 	public long addUserAddress() {
