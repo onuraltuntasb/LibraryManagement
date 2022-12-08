@@ -60,7 +60,6 @@ public class AdminGUI extends JFrame {
 	private DefaultTableModel userTableModel = null;
 	private Object[] userTableData = null;
 
-	DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	Date date = new Date();
 
 	static User user = new User();
@@ -76,7 +75,8 @@ public class AdminGUI extends JFrame {
 	private int delUserAddressId = -1;
 	private int delUserLibraryCardId = -1;
 
-	// TODO form validations and move functions in relative models remove globals and constants
+	// TODO form validations and move functions in relative models remove globals
+	// and constants
 	// TODO update event is not firing
 
 	/**
@@ -121,7 +121,7 @@ public class AdminGUI extends JFrame {
 		w_pane.add(lbl_phone);
 
 		cb_user_type = new JComboBox();
-		cb_user_type.setModel(new DefaultComboBoxModel(new String[] { "MEMBER", "LIBRARIAN", "ADMIN" }));
+		cb_user_type.setModel(new DefaultComboBoxModel(user.getUserTypes()));
 		cb_user_type.setBounds(120, 100, 220, 24);
 		w_pane.add(cb_user_type);
 
@@ -226,8 +226,10 @@ public class AdminGUI extends JFrame {
 					String selectPhone = (String) table_show.getValueAt(table_show.getSelectedRow(), 5);
 					String selectUserType = (String) table_show.getValueAt(table_show.getSelectedRow(), 6);
 					int selectTBC = (int) table_show.getValueAt(table_show.getSelectedRow(), 7);
-					updateUser(selectPassword, selectStatus, selectName, selectEmail, selectPhone, selectUserType,
-							selectTBC, updateUserId);
+					if (user.updateUser(selectPassword, selectStatus, selectName, selectEmail, selectPhone,
+							selectUserType, selectTBC, updateUserId)) {
+						userTableFetch();
+					}
 				}
 
 			}
@@ -281,11 +283,22 @@ public class AdminGUI extends JFrame {
 	}
 
 	public void btn_add_ActionPerformed() {
-		addUser();
+		if (user.addUser(txt_street.getText(), txt_city.getText(), txt_state.getText(), txt_zipcode.getText(),
+				txt_country.getText(), txt_password.getText(), String.valueOf(cb_status.getSelectedItem()),
+				txt_name.getText(), txt_email.getText(), txt_phone.getText(),
+				String.valueOf(cb_user_type.getSelectedItem()), new Date(), LibraryCard.createBarcode(), new Date(),
+				1)) {
+			userTableFetch();
+		}
+		;
+
 	}
 
 	public void btn_delete_ActionPerformed() {
-		deleteUser(delUserId);
+		if (user.deleteUser(delUserId, delUserAddressId, delUserLibraryCardId)) {
+			userTableFetch();
+		}
+
 	}
 
 	public void userTableFetch() {
@@ -337,234 +350,6 @@ public class AdminGUI extends JFrame {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-	}
-
-	public void addUser() {
-
-		int fkAddressId = -1;
-		int fkLibraryCardId = -1;
-
-		try {
-			fkAddressId = (int) addUserAddress();
-		} catch (Exception e) {
-			System.out.println(fkAddressId);
-		}
-
-		try {
-			fkLibraryCardId = (int) addUserLibraryCard();
-		} catch (Exception e) {
-			System.out.println(fkLibraryCardId);
-		}
-
-		try {
-			String query = "INSERT INTO user (password,status,name,email,phone,user_type,address_id,date_of_membership,total_books_checkedout,library_card_id) VALUES (?,?,?,?,?,?,?,?,?,?)";
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
-
-			preparedStatement.setString(1, txt_password.getText());
-			preparedStatement.setString(2, String.valueOf(cb_status.getSelectedItem()));
-			preparedStatement.setString(3, txt_name.getText());
-			preparedStatement.setString(4, txt_email.getText());
-			preparedStatement.setString(5, txt_phone.getText());
-			preparedStatement.setString(6, String.valueOf(cb_user_type.getSelectedItem()));
-			preparedStatement.setInt(7, fkAddressId);
-			preparedStatement.setDate(8, new java.sql.Date(date.getTime()));
-			preparedStatement.setInt(9, 0);
-			preparedStatement.setInt(10, fkLibraryCardId);
-
-			preparedStatement.executeUpdate();
-
-			JOptionPane.showMessageDialog(new JFrame(), " user added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
-
-			userTableFetch();
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-
-	}
-
-	public void updateUser(String password, String status, String name, String email, String phone, String userType,
-			int tbc, int id) {
-
-		// except address, library_card and dom because no need to update so much data
-		// at admin panel. Its job of librarian
-
-		try {
-			String query = "UPDATE user SET password=?,status=?,name=?,email=?,phone=?,user_type=?,total_books_checkedout=? WHERE id=?";
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
-
-			preparedStatement.setString(1, password);
-			preparedStatement.setString(2, status);
-			preparedStatement.setString(3, email);
-			preparedStatement.setString(4, phone);
-			preparedStatement.setString(5, userType);
-			preparedStatement.setInt(6, tbc);
-			preparedStatement.setInt(7, id);
-
-			preparedStatement.executeUpdate();
-
-			JOptionPane.showMessageDialog(new JFrame(), " user updated!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
-
-			userTableFetch();
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-	}
-
-	public long addUserAddress() {
-
-		long rValue = -1;
-
-		try {
-			String query = "INSERT INTO address (street_address,city,state,zipcode,country) VALUES (?,?,?,?,?)";
-
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-			preparedStatement.setString(1, txt_street.getText());
-			preparedStatement.setString(2, txt_city.getText());
-			preparedStatement.setString(3, txt_state.getText());
-			preparedStatement.setString(4, txt_zipcode.getText());
-			preparedStatement.setString(5, txt_country.getText());
-
-			int affectedRows = preparedStatement.executeUpdate();
-
-			if (affectedRows == 0) {
-				throw new SQLException("Creating address failed, no rows affected.");
-			}
-
-			try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-				if (generatedKeys.next()) {
-					rValue = generatedKeys.getLong(1);
-				} else {
-					throw new SQLException("Creating address failed, no ID obtained.");
-				}
-			}
-
-			JOptionPane.showMessageDialog(new JFrame(), " address added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-
-		return rValue;
-	}
-
-	public long addUserLibraryCard() {
-
-		long rValue = -1;
-
-		try {
-			String query = "INSERT INTO library_card (barcode,issuedat,active) VALUES (?,?,?)";
-
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-			// TODO barcode string is coming null fix this later
-			preparedStatement.setString(1, LibraryCard.createBarcode());
-			preparedStatement.setDate(2, new java.sql.Date(date.getTime()));
-			preparedStatement.setInt(3, 1);
-
-			int affectedRows = preparedStatement.executeUpdate();
-
-			if (affectedRows == 0) {
-				throw new SQLException("Creating library_card failed, no rows affected.");
-			}
-
-			try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-				if (generatedKeys.next()) {
-					rValue = generatedKeys.getLong(1);
-				} else {
-					throw new SQLException("Creating library_card failed, no ID obtained.");
-				}
-			}
-
-			JOptionPane.showMessageDialog(new JFrame(), "library_card added!", "Dialog",
-					JOptionPane.INFORMATION_MESSAGE);
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-
-		return rValue;
-
-	}
-
-	public void deleteUser(int id) {
-
-		try {
-			String query = "DELETE FROM user WHERE id=?";
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
-
-			preparedStatement.setInt(1, id);
-			preparedStatement.executeUpdate();
-
-			JOptionPane.showMessageDialog(new JFrame(), " user deleted!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
-
-			userTableFetch();
-
-			// TODO can be added del or keep address feature
-
-			deleteAddress(delUserAddressId);
-
-			deleteLibraryCard(delUserLibraryCardId);
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-
-	}
-
-	public void deleteAddress(int addressId) {
-
-		try {
-			String query = "DELETE FROM address WHERE id=?";
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
-
-			preparedStatement.setInt(1, addressId);
-			preparedStatement.executeUpdate();
-
-			JOptionPane.showMessageDialog(new JFrame(), " address deleted!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
-
-			userTableFetch();
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-
-	}
-
-	public void deleteLibraryCard(int libraryCardId) {
-
-		try {
-			String query = "DELETE FROM library_card WHERE id=?";
-			st = con.createStatement();
-			preparedStatement = con.prepareStatement(query);
-
-			preparedStatement.setInt(1, libraryCardId);
-			preparedStatement.executeUpdate();
-
-			JOptionPane.showMessageDialog(new JFrame(), " library card deleted!", "Dialog",
-					JOptionPane.INFORMATION_MESSAGE);
-
-			userTableFetch();
-
-		} catch (SQLException e1) {
-
-			e1.printStackTrace();
-		}
-
 	}
 
 }

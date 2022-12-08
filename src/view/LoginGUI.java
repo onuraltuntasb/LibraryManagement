@@ -200,7 +200,14 @@ public class LoginGUI extends JFrame {
 						userObj.setTotalBooksCheckedout(rs.getInt("total_books_checkedout"));
 						userObj.setLibraryCardId(rs.getInt("library_card_id"));
 						System.out.println(userObj.getUserType());
-
+						
+						
+//						accountNotFound = false;
+//						LibrarianGUI libGUI = new LibrarianGUI(userObj);
+//						libGUI.setVisible(true);
+//						dispose();
+//						break;
+						
 						if (userObj.getUserType().equalsIgnoreCase("LIBRARIAN")) {
 							accountNotFound = false;
 							LibrarianGUI libGUI = new LibrarianGUI(userObj);
@@ -208,6 +215,7 @@ public class LoginGUI extends JFrame {
 							dispose();
 							break;
 						}
+
 
 					} else {
 						accountNotFound = true;
