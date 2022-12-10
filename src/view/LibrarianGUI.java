@@ -2,13 +2,9 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JFrame;
@@ -20,64 +16,47 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
-import helper.DBConnection;
-import helper.PasswordOps;
 import model.LibraryCard;
 import model.User;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JTextField;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
+import javax.swing.JTabbedPane;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
 import javax.swing.JScrollPane;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JTable;
 
-public class AdminGUI extends JFrame {
-
-	private JPanel w_pane;
-	private JTextField txt_email;
-	private JTextField txt_name;
-	private JTextField txt_phone;
-	private JTextField txt_street;
-	private JTextField txt_city;
-	private JTextField txt_country;
-	private JTextField txt_state;
-
-	private JComboBox cb_user_type;
-	private JComboBox cb_status;
-
-	private JTable table_show;
-
-	private JTextField txt_zipcode;
-	private JTextField txt_password;
-
-	private DefaultTableModel userTableModel = null;
-	private Object[] userTableData = null;
-
-	Date date = new Date();
+public class LibrarianGUI extends JFrame {
 
 	static User user = new User();
 
-	private DBConnection conn = new DBConnection();
-	private Statement st = null;
-	private ResultSet rs = null;
-
-	private Connection con = conn.connDb();
-	private PreparedStatement preparedStatement = null;
-
+	private JPanel w_pane;
+	private JLabel lbl_welcome;
+	private JTextField txt_email;
+	private JTextField txt_name;
+	private JTextField txt_street;
+	private JTextField txt_city;
+	private JTextField txt_state;
+	private JTextField txt_zipcode;
+	private JTextField txt_password;
+	private JTextField txt_phone;
+	private JTextField txt_country;
+	private JTable table_show;
+	
+	private JComboBox cb_user_type;
+	private JComboBox cb_status;
+	
+	
 	private int delUserId = -1;
 	private int delUserAddressId = -1;
 	private int delUserLibraryCardId = -1;
+	
+	private DefaultTableModel userTableModel = null;
+	private Object[] userTableData = null;
+	
 
-	// TODO form validations and move functions in relative models remove globals
-	// and constants
-	// TODO update event is not firing
+	
 
 	/**
 	 * Launch the application.
@@ -86,7 +65,7 @@ public class AdminGUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					AdminGUI frame = new AdminGUI();
+					LibrarianGUI frame = new LibrarianGUI(user);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -98,88 +77,124 @@ public class AdminGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public AdminGUI() {
-
-		setTitle("Admin Page");
+	public LibrarianGUI(User user) {
+		setTitle("Librarian Page");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 600);
+		setBounds(100, 100, 1366, 768);
 		w_pane = new JPanel();
 		w_pane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(w_pane);
 		w_pane.setLayout(null);
 
+		lbl_welcome = new JLabel("Welcome " + user.getName());
+		lbl_welcome.setBounds(12, 15, 336, 15);
+		w_pane.add(lbl_welcome);
+
+		JTabbedPane tab_pane = new JTabbedPane(JTabbedPane.TOP);
+		tab_pane.setBounds(12, 40, 1342, 692);
+		w_pane.add(tab_pane);
+		
+		JPanel tab_user_ops = new JPanel();
+		tab_pane.addTab("User", null, tab_user_ops, null);
+		tab_user_ops.setLayout(null);
+		
 		JLabel lbl_name = new JLabel("name :");
-		lbl_name.setBounds(23, 50, 70, 15);
-		w_pane.add(lbl_name);
-
+		lbl_name.setBounds(31, 37, 70, 15);
+		tab_user_ops.add(lbl_name);
+		
 		JLabel lbl_email = new JLabel("email :");
-		lbl_email.setBounds(23, 25, 70, 15);
-		w_pane.add(lbl_email);
-
-		JLabel lbl_phone = new JLabel("phone :");
-		lbl_phone.setBounds(350, 50, 70, 15);
-		w_pane.add(lbl_phone);
-
-		cb_user_type = new JComboBox();
-		cb_user_type.setModel(new DefaultComboBoxModel(user.getUserTypes()));
-		cb_user_type.setBounds(120, 100, 220, 24);
-		w_pane.add(cb_user_type);
-
+		lbl_email.setBounds(31, 12, 70, 15);
+		tab_user_ops.add(lbl_email);
+		
+	 cb_user_type = new JComboBox();
+		cb_user_type.setBounds(128, 87, 220, 24);
+		tab_user_ops.add(cb_user_type);
+		
 		JLabel lbl_user_type = new JLabel("type :");
-		lbl_user_type.setBounds(23, 100, 70, 15);
-		w_pane.add(lbl_user_type);
-
+		lbl_user_type.setBounds(31, 87, 70, 15);
+		tab_user_ops.add(lbl_user_type);
+		
 		txt_email = new JTextField();
-		txt_email.setBounds(120, 25, 220, 19);
-		w_pane.add(txt_email);
 		txt_email.setColumns(10);
-
+		txt_email.setBounds(128, 12, 220, 19);
+		tab_user_ops.add(txt_email);
+		
 		txt_name = new JTextField();
 		txt_name.setColumns(10);
-		txt_name.setBounds(120, 50, 220, 19);
-		w_pane.add(txt_name);
-
-		txt_phone = new JTextField();
-		txt_phone.setColumns(10);
-		txt_phone.setBounds(425, 50, 220, 19);
-		w_pane.add(txt_phone);
-
+		txt_name.setBounds(128, 37, 220, 19);
+		tab_user_ops.add(txt_name);
+		
 		JLabel lbl_street = new JLabel("street :");
-		lbl_street.setBounds(23, 175, 70, 15);
-		w_pane.add(lbl_street);
-
+		lbl_street.setBounds(420, 62, 70, 15);
+		tab_user_ops.add(lbl_street);
+		
 		JLabel lbl_city = new JLabel("city :");
-		lbl_city.setBounds(23, 200, 70, 15);
-		w_pane.add(lbl_city);
-
+		lbl_city.setBounds(420, 87, 70, 15);
+		tab_user_ops.add(lbl_city);
+		
 		JLabel lbl_state = new JLabel("state :");
-		lbl_state.setBounds(23, 225, 70, 15);
-		w_pane.add(lbl_state);
-
-		JLabel lbl_country = new JLabel("country :");
-		lbl_country.setBounds(350, 25, 70, 15);
-		w_pane.add(lbl_country);
-
+		lbl_state.setBounds(420, 112, 70, 15);
+		tab_user_ops.add(lbl_state);
+		
 		txt_street = new JTextField();
 		txt_street.setColumns(10);
-		txt_street.setBounds(120, 175, 220, 19);
-		w_pane.add(txt_street);
-
+		txt_street.setBounds(495, 62, 220, 19);
+		tab_user_ops.add(txt_street);
+		
 		txt_city = new JTextField();
 		txt_city.setColumns(10);
-		txt_city.setBounds(120, 200, 220, 19);
-		w_pane.add(txt_city);
-
-		txt_country = new JTextField();
-		txt_country.setColumns(10);
-		txt_country.setBounds(425, 25, 220, 19);
-		w_pane.add(txt_country);
-
+		txt_city.setBounds(495, 87, 220, 19);
+		tab_user_ops.add(txt_city);
+		
 		txt_state = new JTextField();
 		txt_state.setColumns(10);
-		txt_state.setBounds(120, 225, 220, 19);
-		w_pane.add(txt_state);
-
+		txt_state.setBounds(495, 112, 220, 19);
+		tab_user_ops.add(txt_state);
+		
+		JLabel lbl_zipcode = new JLabel("zipcode :");
+		lbl_zipcode.setBounds(420, 137, 70, 15);
+		tab_user_ops.add(lbl_zipcode);
+		
+		txt_zipcode = new JTextField();
+		txt_zipcode.setColumns(10);
+		txt_zipcode.setBounds(495, 137, 220, 19);
+		tab_user_ops.add(txt_zipcode);
+		
+		JLabel lbl_password = new JLabel("password :");
+		lbl_password.setBounds(31, 62, 70, 15);
+		tab_user_ops.add(lbl_password);
+		
+		txt_password = new JTextField();
+		txt_password.setColumns(10);
+		txt_password.setBounds(128, 60, 220, 19);
+		tab_user_ops.add(txt_password);
+		
+		JLabel lbl_status = new JLabel("status :");
+		lbl_status.setBounds(31, 112, 70, 15);
+		tab_user_ops.add(lbl_status);
+		
+		 cb_status = new JComboBox();
+		cb_status.setBounds(128, 112, 220, 24);
+		tab_user_ops.add(cb_status);
+		
+		JLabel lbl_phone = new JLabel("phone :");
+		lbl_phone.setBounds(420, 37, 70, 15);
+		tab_user_ops.add(lbl_phone);
+		
+		txt_phone = new JTextField();
+		txt_phone.setColumns(10);
+		txt_phone.setBounds(495, 37, 220, 19);
+		tab_user_ops.add(txt_phone);
+		
+		JLabel lbl_country = new JLabel("country :");
+		lbl_country.setBounds(420, 12, 70, 15);
+		tab_user_ops.add(lbl_country);
+		
+		txt_country = new JTextField();
+		txt_country.setColumns(10);
+		txt_country.setBounds(495, 12, 220, 19);
+		tab_user_ops.add(txt_country);
+		
 		JButton btn_add = new JButton("add");
 		btn_add.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -187,29 +202,29 @@ public class AdminGUI extends JFrame {
 			}
 
 		});
-		btn_add.setBounds(405, 220, 80, 25);
-		w_pane.add(btn_add);
-
+		btn_add.setBounds(31, 212, 80, 25);
+		tab_user_ops.add(btn_add);
+		
 		JButton btn_edit = new JButton("edit");
-		btn_edit.setBounds(520, 220, 80, 25);
-		w_pane.add(btn_edit);
-
+		btn_edit.setBounds(146, 212, 80, 25);
+		tab_user_ops.add(btn_edit);
+		
 		JButton btn_delete = new JButton("delete");
 		btn_delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btn_delete_ActionPerformed();
 			}
 		});
-		btn_delete.setBounds(639, 220, 80, 25);
-		w_pane.add(btn_delete);
-
+		btn_delete.setBounds(261, 212, 80, 25);
+		tab_user_ops.add(btn_delete);
+		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(23, 283, 765, 268);
-		w_pane.add(scrollPane);
-
+		scrollPane.setBounds(31, 268, 1275, 364);
+		tab_user_ops.add(scrollPane);
+		
 		table_show = new JTable();
 		scrollPane.setViewportView(table_show);
-
+		
 		table_show.getModel().addTableModelListener(new TableModelListener() {
 
 			@Override
@@ -250,38 +265,14 @@ public class AdminGUI extends JFrame {
 			}
 		});
 
-		JLabel lbl_zipcode = new JLabel("zipcode :");
-		lbl_zipcode.setBounds(23, 250, 70, 15);
-		w_pane.add(lbl_zipcode);
-
-		txt_zipcode = new JTextField();
-		txt_zipcode.setColumns(10);
-		txt_zipcode.setBounds(120, 250, 220, 19);
-		w_pane.add(txt_zipcode);
-
-		JLabel lbl_password = new JLabel("password :");
-		lbl_password.setBounds(23, 75, 70, 15);
-		w_pane.add(lbl_password);
-
-		txt_password = new JTextField();
-		txt_password.setColumns(10);
-		txt_password.setBounds(120, 73, 220, 19);
-		w_pane.add(txt_password);
-
-		JLabel lbl_status = new JLabel("status :");
-		lbl_status.setBounds(23, 125, 70, 15);
-		w_pane.add(lbl_status);
-
-		cb_status = new JComboBox();
-		cb_status.setModel(
-				new DefaultComboBoxModel(new String[] { "ACTIVE", "CLOSED", "CANCELED", "BLACKLISTED", "NONE" }));
-		cb_status.setBounds(120, 125, 220, 24);
-		w_pane.add(cb_status);
-
+		JButton btn_logout = new JButton("Log out");
+		btn_logout.setBounds(1231, 15, 117, 25);
+		w_pane.add(btn_logout);
+		
 		userTableFetch();
 
 	}
-
+	
 	public void btn_add_ActionPerformed() {
 		if (user.addUser(txt_street.getText(), txt_city.getText(), txt_state.getText(), txt_zipcode.getText(),
 				txt_country.getText(), txt_password.getText(), String.valueOf(cb_status.getSelectedItem()),
@@ -351,5 +342,4 @@ public class AdminGUI extends JFrame {
 			e1.printStackTrace();
 		}
 	}
-
 }

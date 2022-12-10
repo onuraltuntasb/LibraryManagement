@@ -170,8 +170,6 @@ public class LoginGUI extends JFrame {
 		}
 
 		if (validationOK) {
-			
-			
 
 			try {
 
@@ -201,13 +199,23 @@ public class LoginGUI extends JFrame {
 						userObj.setDateOfMembership(rs.getString("date_of_membership"));
 						userObj.setTotalBooksCheckedout(rs.getInt("total_books_checkedout"));
 						userObj.setLibraryCardId(rs.getInt("library_card_id"));
-						System.out.println(userObj.getName());
-						// TODO send member or librarian or admin gui
-						// UserGUI uGUI = new UserGUI(userObj);
-						// uGUI.setVisible(true);
-						accountNotFound = false;
-						dispose();
-						break;
+						System.out.println(userObj.getUserType());
+						
+						
+//						accountNotFound = false;
+//						LibrarianGUI libGUI = new LibrarianGUI(userObj);
+//						libGUI.setVisible(true);
+//						dispose();
+//						break;
+						
+						if (userObj.getUserType().equalsIgnoreCase("LIBRARIAN")) {
+							accountNotFound = false;
+							LibrarianGUI libGUI = new LibrarianGUI(userObj);
+							libGUI.setVisible(true);
+							dispose();
+							break;
+						}
+
 
 					} else {
 						accountNotFound = true;
