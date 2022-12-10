@@ -125,39 +125,39 @@ public class LibrarianGUI extends JFrame {
 		tab_user_ops.add(txt_name);
 		
 		JLabel lbl_street = new JLabel("street :");
-		lbl_street.setBounds(31, 162, 70, 15);
+		lbl_street.setBounds(420, 62, 70, 15);
 		tab_user_ops.add(lbl_street);
 		
 		JLabel lbl_city = new JLabel("city :");
-		lbl_city.setBounds(31, 187, 70, 15);
+		lbl_city.setBounds(420, 87, 70, 15);
 		tab_user_ops.add(lbl_city);
 		
 		JLabel lbl_state = new JLabel("state :");
-		lbl_state.setBounds(31, 212, 70, 15);
+		lbl_state.setBounds(420, 112, 70, 15);
 		tab_user_ops.add(lbl_state);
 		
 		txt_street = new JTextField();
 		txt_street.setColumns(10);
-		txt_street.setBounds(128, 162, 220, 19);
+		txt_street.setBounds(495, 62, 220, 19);
 		tab_user_ops.add(txt_street);
 		
 		txt_city = new JTextField();
 		txt_city.setColumns(10);
-		txt_city.setBounds(128, 187, 220, 19);
+		txt_city.setBounds(495, 87, 220, 19);
 		tab_user_ops.add(txt_city);
 		
 		txt_state = new JTextField();
 		txt_state.setColumns(10);
-		txt_state.setBounds(128, 212, 220, 19);
+		txt_state.setBounds(495, 112, 220, 19);
 		tab_user_ops.add(txt_state);
 		
 		JLabel lbl_zipcode = new JLabel("zipcode :");
-		lbl_zipcode.setBounds(31, 237, 70, 15);
+		lbl_zipcode.setBounds(420, 137, 70, 15);
 		tab_user_ops.add(lbl_zipcode);
 		
 		txt_zipcode = new JTextField();
 		txt_zipcode.setColumns(10);
-		txt_zipcode.setBounds(128, 237, 220, 19);
+		txt_zipcode.setBounds(495, 137, 220, 19);
 		tab_user_ops.add(txt_zipcode);
 		
 		JLabel lbl_password = new JLabel("password :");
@@ -178,21 +178,21 @@ public class LibrarianGUI extends JFrame {
 		tab_user_ops.add(cb_status);
 		
 		JLabel lbl_phone = new JLabel("phone :");
-		lbl_phone.setBounds(420, 25, 70, 15);
+		lbl_phone.setBounds(420, 37, 70, 15);
 		tab_user_ops.add(lbl_phone);
 		
 		txt_phone = new JTextField();
 		txt_phone.setColumns(10);
-		txt_phone.setBounds(495, 25, 220, 19);
+		txt_phone.setBounds(495, 37, 220, 19);
 		tab_user_ops.add(txt_phone);
 		
 		JLabel lbl_country = new JLabel("country :");
-		lbl_country.setBounds(420, 0, 70, 15);
+		lbl_country.setBounds(420, 12, 70, 15);
 		tab_user_ops.add(lbl_country);
 		
 		txt_country = new JTextField();
 		txt_country.setColumns(10);
-		txt_country.setBounds(495, 0, 220, 19);
+		txt_country.setBounds(495, 12, 220, 19);
 		tab_user_ops.add(txt_country);
 		
 		JButton btn_add = new JButton("add");
@@ -202,11 +202,11 @@ public class LibrarianGUI extends JFrame {
 			}
 
 		});
-		btn_add.setBounds(420, 227, 80, 25);
+		btn_add.setBounds(31, 212, 80, 25);
 		tab_user_ops.add(btn_add);
 		
 		JButton btn_edit = new JButton("edit");
-		btn_edit.setBounds(535, 227, 80, 25);
+		btn_edit.setBounds(146, 212, 80, 25);
 		tab_user_ops.add(btn_edit);
 		
 		JButton btn_delete = new JButton("delete");
@@ -215,11 +215,11 @@ public class LibrarianGUI extends JFrame {
 				btn_delete_ActionPerformed();
 			}
 		});
-		btn_delete.setBounds(654, 227, 80, 25);
+		btn_delete.setBounds(261, 212, 80, 25);
 		tab_user_ops.add(btn_delete);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(31, 268, 765, 268);
+		scrollPane.setBounds(31, 268, 1275, 364);
 		tab_user_ops.add(scrollPane);
 		
 		table_show = new JTable();
@@ -266,7 +266,7 @@ public class LibrarianGUI extends JFrame {
 		});
 
 		JButton btn_logout = new JButton("Log out");
-		btn_logout.setBounds(1237, 5, 117, 25);
+		btn_logout.setBounds(1231, 15, 117, 25);
 		w_pane.add(btn_logout);
 		
 		userTableFetch();
