@@ -1,5 +1,13 @@
 package model;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import helper.DBConnection;
+
 public class Book {
 
 	private Long id;
@@ -10,10 +18,12 @@ public class Book {
 	private String language;
 	private int numberOfPages;
 
+	public Book() {
+	}
 
 	public Book(Long id, String iSBN, String title, String subject, String publisher, String language,
 			int numberOfPages) {
-	
+
 		this.id = id;
 		ISBN = iSBN;
 		this.title = title;
@@ -78,9 +88,5 @@ public class Book {
 	public void setNumberOfPages(int numberOfPages) {
 		this.numberOfPages = numberOfPages;
 	}
-	
-	
-
-	
 
 }
