@@ -67,12 +67,17 @@ public class LibrarianGUI extends JFrame {
 	private JTextField txt_publisher;
 	private JTextField txt_language;
 	private JTextField txt_page_number;
-	private JTextField textField;
+	private JTextField txt_barrowedat;
 	private JTextField txt_due_date;
 	private JTextField txt_price;
 	private JTextField txt_purchase_date;
-	private JTextField textField_4;
+	private JTextField txt_publication_date;
 	private JTable table_show_book;
+	
+	private JCheckBox check_reference_only;
+	private JComboBox cb_book_format;
+	private JComboBox cb_book_status;
+	private JComboBox cb_rack_identifier;
 
 	/**
 	 * Launch the application.
@@ -299,7 +304,7 @@ public class LibrarianGUI extends JFrame {
 		txt_page_number.setBounds(150, 112, 204, 19);
 		tab_book_ops.add(txt_page_number);
 
-		JCheckBox check_reference_only = new JCheckBox("reference only");
+		 check_reference_only = new JCheckBox("reference only");
 		check_reference_only.setBounds(150, 137, 129, 23);
 		tab_book_ops.add(check_reference_only);
 
@@ -307,10 +312,10 @@ public class LibrarianGUI extends JFrame {
 		lbl_borrowed.setBounds(12, 162, 111, 15);
 		tab_book_ops.add(lbl_borrowed);
 
-		textField = new JTextField();
-		textField.setColumns(10);
-		textField.setBounds(150, 162, 204, 19);
-		tab_book_ops.add(textField);
+		txt_barrowedat = new JTextField();
+		txt_barrowedat.setColumns(10);
+		txt_barrowedat.setBounds(150, 162, 204, 19);
+		tab_book_ops.add(txt_barrowedat);
 
 		JLabel lbl_due_date = new JLabel("due date :");
 		lbl_due_date.setBounds(12, 187, 111, 15);
@@ -330,11 +335,11 @@ public class LibrarianGUI extends JFrame {
 		txt_price.setBounds(150, 212, 204, 19);
 		tab_book_ops.add(txt_price);
 
-		JComboBox cb_book_format = new JComboBox();
+		 cb_book_format = new JComboBox();
 		cb_book_format.setBounds(150, 237, 204, 19);
 		tab_book_ops.add(cb_book_format);
 
-		JComboBox cb_book_status = new JComboBox();
+		 cb_book_status = new JComboBox();
 		cb_book_status.setBounds(150, 262, 204, 19);
 		tab_book_ops.add(cb_book_status);
 
@@ -355,10 +360,10 @@ public class LibrarianGUI extends JFrame {
 		lbl_date_of_purchase.setBounds(12, 287, 137, 15);
 		tab_book_ops.add(lbl_date_of_purchase);
 
-		textField_4 = new JTextField();
-		textField_4.setColumns(10);
-		textField_4.setBounds(150, 312, 204, 19);
-		tab_book_ops.add(textField_4);
+		txt_publication_date = new JTextField();
+		txt_publication_date.setColumns(10);
+		txt_publication_date.setBounds(150, 312, 204, 19);
+		tab_book_ops.add(txt_publication_date);
 
 		JLabel lbl_publication_date = new JLabel("publication date :");
 		lbl_publication_date.setBounds(12, 312, 137, 19);
@@ -368,7 +373,7 @@ public class LibrarianGUI extends JFrame {
 		lbl_rack.setBounds(12, 337, 137, 19);
 		tab_book_ops.add(lbl_rack);
 
-		JComboBox cb_rack_identifier = new JComboBox();
+		cb_rack_identifier = new JComboBox();
 		cb_rack_identifier.setBounds(150, 337, 204, 19);
 		tab_book_ops.add(cb_rack_identifier);
 
@@ -380,6 +385,12 @@ public class LibrarianGUI extends JFrame {
 		sp_table.setViewportView(table_show_book);
 
 		JButton btn_add_book = new JButton("add");
+		btn_add_book.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				add_bookActionListener();
+			}
+		});
 		btn_add_book.setBounds(12, 372, 117, 25);
 		tab_book_ops.add(btn_add_book);
 
@@ -582,5 +593,19 @@ public class LibrarianGUI extends JFrame {
 		} else if (selectedIndex == 1) {
 			bookTableFetch();
 		}
+	}
+	
+	public void add_bookActionListener() {
+		//TODO validation
+		//TODO field order
+		//TODO
+		if (bookItem.addBookItem(txt_title.getText(), txt_subject.getText(), txt_publisher.getText(), txt_language.getText(),
+				txt_page_number.getText(),(check_reference_only.isSelected() ? true :false), txt_barrowedat.getText(),txt_due_date.getText(),txt_price.getText(),
+				String.valueOf(cb_book_format.getSelectedItem()),String.valueOf(cb_book_status.getSelectedItem()),txt_purchase_date.getText(),txt_publication_date.getText(),
+				String.valueOf(cb_rack_identifier.getSelectedItem())
+				)) {
+			bookTableFetch();
+		}
+		;
 	}
 }

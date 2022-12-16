@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,6 +10,13 @@ import java.util.ArrayList;
 import helper.DBConnection;
 
 public class Book {
+	
+	protected DBConnection conn = new DBConnection();
+	protected Statement st = null;
+	protected ResultSet rs = null;
+
+	protected Connection con = conn.connDb();
+	protected PreparedStatement preparedStatement = null;
 
 	private Long id;
 	private String ISBN;

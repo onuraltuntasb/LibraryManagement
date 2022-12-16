@@ -1,23 +1,31 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import helper.DBConnection;
 
 public class BookItem extends Book {
+	
+	//TODO test user interface
+	
 
-	private enum BookStatus {
+	private static enum BookStatus {
 		AVAILABLE, REVERSED, LOANED, LOST
 	}
 
-	private enum BookFormat {
+	private static enum BookFormat {
 		HARDCOVER, PAPERBACK, AUDIOBOOK, EBOOK, NEWSPAPER, MAGAZINE, JOURNAL
 	}
+	
 
 	private String barcode;
 	private boolean isReferenceOnly;
@@ -50,10 +58,7 @@ public class BookItem extends Book {
 	}
 
 	public ArrayList<BookItem> getBookList() throws SQLException {
-		DBConnection conn = new DBConnection();
-		Connection con = conn.connDb();
-		Statement st = null;
-		ResultSet rs = null;
+	
 
 		ArrayList<BookItem> list = new ArrayList<>();
 		BookItem obj;
@@ -80,6 +85,127 @@ public class BookItem extends Book {
 
 		return list;
 	}
+	
+	public boolean addBookItem (String title, String subject, String publisher, String language,
+	int numberOfPages, String barcode, boolean isReferenceOnly, java.sql.Date borrowedAt, Date dueDate,
+	Double price, String format, String status, java.sql.Date dateOfPurchase, java.sql.Date publicationDate,
+	long rackId,String tag,String rackIdentifier,String libraryName) {
+
+		int fkRackNumber = -1;
+
+		try {
+			
+
+			if(isRackThere(rackIdentifier) != null) {
+				fkRackNumber = (int) addRackNumber(tag,rackIdentifier);
+			}else {
+				fkRackNumber = isRackThere(rackIdentifier).getInt("id");
+			}
+
+		} catch (Exception e) {
+			System.out.println(fkRackNumber);
+		}
+
+	
+
+		try {
+			String query = "INSERT INTO user (title,subject,publisher,language,numberOfPages,barcode,is_reference_only,borrowed_at,due_date,price,format,status,date_of_purchase,publication_date,rack_id,library_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+
+			preparedStatement.setString(1, title);
+			preparedStatement.setString(2, subject);
+			preparedStatement.setString(3, publisher);
+			preparedStatement.setString(4, language);
+			preparedStatement.setInt(5, numberOfPages);
+			preparedStatement.setString(6, barcode);
+			preparedStatement.setBoolean(7, isReferenceOnly);
+			preparedStatement.setDate(8, new java.sql.Date(borrowedAt.getTime()));
+			preparedStatement.setDate(9,new java.sql.Date(dueDate.getTime()));
+			preparedStatement.setDouble(10, price);
+			preparedStatement.setString(11, format);
+			preparedStatement.setString(12, status);
+			preparedStatement.setDate(13, new java.sql.Date(dateOfPurchase.getTime()));
+			preparedStatement.setDate(14, new java.sql.Date(publicationDate.getTime()));
+			preparedStatement.setLong(15, rackId);
+			//TODO dynamic libraryId
+			preparedStatement.setLong(16, 1);
+
+			preparedStatement.executeUpdate();
+
+			JOptionPane.showMessageDialog(new JFrame(), " user added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+			return true;
+
+		} catch (SQLException e1) {
+
+			e1.printStackTrace();
+			return false;
+		}
+
+	}
+	
+	public ResultSet isRackThere(String rackIdentifier) throws SQLException {
+		
+		try {
+
+			String query = "SELECT id FROM rack WHERE location_identifier=?";
+			Connection con = conn.connDb();
+
+			PreparedStatement preparedStatement = con.prepareStatement(query);
+
+			preparedStatement.setString(1, rackIdentifier);
+			rs = preparedStatement.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			st.close();
+			rs.close();
+			con.close();
+		}
+		
+		return rs;
+	}
+	
+	public long addRackNumber(String tag, String rackIdentifier) {
+
+		long rValue = -1;
+
+		try {
+			String query = "INSERT INTO rack (number,rackIdentifier VALUES (?,?)";
+
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+
+			preparedStatement.setString(1, tag);
+			preparedStatement.setString(2, rackIdentifier);
+		
+
+			int affectedRows = preparedStatement.executeUpdate();
+
+			if (affectedRows == 0) {
+				throw new SQLException("Creating rack failed, no rows affected.");
+			}
+
+			try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+				if (generatedKeys.next()) {
+					rValue = generatedKeys.getLong(1);
+				} else {
+					throw new SQLException("Creating rack failed, no ID obtained.");
+				}
+			}
+
+			JOptionPane.showMessageDialog(new JFrame(), " rack added!", "Dialog", JOptionPane.INFORMATION_MESSAGE);
+
+		} catch (SQLException e1) {
+
+			e1.printStackTrace();
+		}
+		
+
+		return rValue;
+	}
+	
+	
 
 	public boolean checkout() {
 
