@@ -15,17 +15,11 @@ import helper.DBConnection;
 
 public class BookItem extends Book {
 	
-	//TODO test user interface
-	
 
-	private static enum BookStatus {
-		AVAILABLE, REVERSED, LOANED, LOST
-	}
 
-	private static enum BookFormat {
-		HARDCOVER, PAPERBACK, AUDIOBOOK, EBOOK, NEWSPAPER, MAGAZINE, JOURNAL
-	}
-	
+
+	private static String[] bookFormat = new String[] { "HARDCOVER","PAPERBACK", "AUDIOBOOK", "EBOOK", "NEWSPAPER", "MAGAZINE", "JOURNAL" };
+	private static String[] bookStatus = new String[] { "AVAILABLE","REVERSED", "LOANED", "LOST"};
 
 	private String barcode;
 	private boolean isReferenceOnly;
@@ -77,19 +71,18 @@ public class BookItem extends Book {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} finally {
-			st.close();
-			rs.close();
-			con.close();
-		}
+		} 
 
 		return list;
 	}
 	
+	
+	
+	
 	public boolean addBookItem (String title, String subject, String publisher, String language,
-	int numberOfPages, String barcode, boolean isReferenceOnly, java.sql.Date borrowedAt, Date dueDate,
-	Double price, String format, String status, java.sql.Date dateOfPurchase, java.sql.Date publicationDate,
-	long rackId,String tag,String rackIdentifier,String libraryName) {
+	int numberOfPages, String barcode, boolean isReferenceOnly, java.sql.Date borrowedAt, java.sql.Date dueDate,
+	double price, String format, String status, java.sql.Date dateOfPurchase, java.sql.Date publicationDate,
+	String tag,String rackIdentifier,String libraryName) {
 
 		int fkRackNumber = -1;
 
@@ -127,7 +120,7 @@ public class BookItem extends Book {
 			preparedStatement.setString(12, status);
 			preparedStatement.setDate(13, new java.sql.Date(dateOfPurchase.getTime()));
 			preparedStatement.setDate(14, new java.sql.Date(publicationDate.getTime()));
-			preparedStatement.setLong(15, rackId);
+			preparedStatement.setLong(15, fkRackNumber);
 			//TODO dynamic libraryId
 			preparedStatement.setLong(16, 1);
 
@@ -291,5 +284,29 @@ public class BookItem extends Book {
 	public void setRackId(Long rackId) {
 		this.rackId = rackId;
 	}
+
+	
+
+	public static String[] getBookFormat() {
+		return bookFormat;
+	}
+
+	public static void setBookFormat(String[] bookFormat) {
+		BookItem.bookFormat = bookFormat;
+	}
+
+	public static String[] getBookStatus() {
+		return bookStatus;
+	}
+
+	public static void setBookStatus(String[] bookStatus) {
+		BookItem.bookStatus = bookStatus;
+	}
+
+	public void setRackId(long rackId) {
+		this.rackId = rackId;
+	}
+
+
 
 }

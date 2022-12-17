@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.swing.JFrame;
@@ -21,9 +22,11 @@ import javax.swing.table.DefaultTableModel;
 
 import model.BookItem;
 import model.LibraryCard;
+import model.Rack;
 import model.User;
 
 import javax.swing.JTabbedPane;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
@@ -37,6 +40,7 @@ public class LibrarianGUI extends JFrame {
 
 	static User user = new User();
 	static BookItem bookItem = new BookItem();
+	static Rack rack = new Rack();
 
 	private JPanel w_pane;
 	private JLabel lbl_welcome;
@@ -73,7 +77,7 @@ public class LibrarianGUI extends JFrame {
 	private JTextField txt_purchase_date;
 	private JTextField txt_publication_date;
 	private JTable table_show_book;
-	
+
 	private JCheckBox check_reference_only;
 	private JComboBox cb_book_format;
 	private JComboBox cb_book_status;
@@ -191,10 +195,12 @@ public class LibrarianGUI extends JFrame {
 		tab_user_ops.add(txt_password);
 
 		JLabel lbl_status = new JLabel("status :");
+		
 		lbl_status.setBounds(31, 112, 70, 15);
 		tab_user_ops.add(lbl_status);
 
 		cb_status = new JComboBox();
+		cb_status.setModel(new DefaultComboBoxModel(user.getUserTypes()));
 		cb_status.setBounds(128, 112, 220, 24);
 		tab_user_ops.add(cb_status);
 
@@ -304,7 +310,7 @@ public class LibrarianGUI extends JFrame {
 		txt_page_number.setBounds(150, 112, 204, 19);
 		tab_book_ops.add(txt_page_number);
 
-		 check_reference_only = new JCheckBox("reference only");
+		check_reference_only = new JCheckBox("reference only");
 		check_reference_only.setBounds(150, 137, 129, 23);
 		tab_book_ops.add(check_reference_only);
 
@@ -335,11 +341,13 @@ public class LibrarianGUI extends JFrame {
 		txt_price.setBounds(150, 212, 204, 19);
 		tab_book_ops.add(txt_price);
 
-		 cb_book_format = new JComboBox();
+		cb_book_format = new JComboBox();
+		cb_book_format.setModel(new DefaultComboBoxModel(BookItem.getBookFormat()));
 		cb_book_format.setBounds(150, 237, 204, 19);
 		tab_book_ops.add(cb_book_format);
 
-		 cb_book_status = new JComboBox();
+		cb_book_status = new JComboBox();
+		cb_book_status.setModel(new DefaultComboBoxModel(BookItem.getBookStatus()));
 		cb_book_status.setBounds(150, 262, 204, 19);
 		tab_book_ops.add(cb_book_status);
 
@@ -397,6 +405,8 @@ public class LibrarianGUI extends JFrame {
 		JButton btn_delete_book = new JButton("delete");
 		btn_delete_book.setBounds(241, 372, 117, 25);
 		tab_book_ops.add(btn_delete_book);
+		
+		
 
 		table_show.getModel().addTableModelListener(new TableModelListener() {
 
@@ -491,8 +501,8 @@ public class LibrarianGUI extends JFrame {
 				DefaultTableModel clearModel = (DefaultTableModel) table_show.getModel();
 				clearModel.setRowCount(0);
 			}
-			ArrayList<User> userList =user.getUserList();
-			
+			ArrayList<User> userList = user.getUserList();
+
 			for (int i = 0; i < userList.size(); i++) {
 				userTableData[0] = userList.get(i).getId();
 				userTableData[1] = userList.get(i).getPassword();
@@ -541,8 +551,6 @@ public class LibrarianGUI extends JFrame {
 
 		bookTableModel.setColumnIdentifiers(colBookTableName);
 		bookTableData = new Object[17];
-		
-		
 
 		try {
 
@@ -551,8 +559,8 @@ public class LibrarianGUI extends JFrame {
 				DefaultTableModel clearModel = (DefaultTableModel) table_show_book.getModel();
 				clearModel.setRowCount(0);
 			}
-			
-			ArrayList<BookItem> bookItemList =bookItem.getBookList();
+
+			ArrayList<BookItem> bookItemList = bookItem.getBookList();
 
 			for (int i = 0; i < bookItemList.size(); i++) {
 				bookTableData[0] = bookItemList.get(i).getId();
@@ -585,7 +593,7 @@ public class LibrarianGUI extends JFrame {
 	}
 
 	public void tab_paneChangeListener(JTabbedPane tab_pane) {
-
+		getRackIdentifiers();
 		int selectedIndex = tab_pane.getSelectedIndex();
 		System.out.println("Tab: " + tab_pane.getSelectedIndex());
 		if (selectedIndex == 0) {
@@ -594,18 +602,48 @@ public class LibrarianGUI extends JFrame {
 			bookTableFetch();
 		}
 	}
-	
+
 	public void add_bookActionListener() {
-		//TODO validation
-		//TODO field order
-		//TODO
-		if (bookItem.addBookItem(txt_title.getText(), txt_subject.getText(), txt_publisher.getText(), txt_language.getText(),
-				txt_page_number.getText(),(check_reference_only.isSelected() ? true :false), txt_barrowedat.getText(),txt_due_date.getText(),txt_price.getText(),
-				String.valueOf(cb_book_format.getSelectedItem()),String.valueOf(cb_book_status.getSelectedItem()),txt_purchase_date.getText(),txt_publication_date.getText(),
-				String.valueOf(cb_rack_identifier.getSelectedItem())
-				)) {
+		// TODO validation
+		// TODO field order
+		// TODO barcode unique check bug fix
+		// TODO library name global set
+		
+		System.out.println();
+		
+		if (bookItem.addBookItem(txt_title.getText(), txt_subject.getText(), txt_publisher.getText(),
+				txt_language.getText(), Integer.parseInt(txt_page_number.getText()), bookItem.getBarcode(),
+				(check_reference_only.isSelected() ? true : false), java.sql.Date.valueOf(txt_barrowedat.getText()),
+				java.sql.Date.valueOf(txt_due_date.getText()), Double.parseDouble(txt_price.getText()),
+				String.valueOf(cb_book_format.getSelectedItem()), String.valueOf(cb_book_status.getSelectedItem()),
+				java.sql.Date.valueOf(txt_purchase_date.getText()),
+				java.sql.Date.valueOf(txt_publication_date.getText()),
+				String.valueOf(cb_rack_identifier.getSelectedItem()), "tag", "library1")) {
 			bookTableFetch();
 		}
 		;
 	}
+	
+	//TODO
+	
+	public ArrayList<Rack> getRackIdentifiers(){
+		String[] rackIdentifierModel = new String[] {};
+		try {
+
+			 for(int i = 0; i<rack.getRackIdentifiers().size()-1;i++) {
+					Rack obj = rack.getRackIdentifiers().get(i);
+					System.out.println(obj);
+					rackIdentifierModel[i] = String.valueOf(obj.getId());
+			 }
+			 System.out.println(rackIdentifierModel[0].toString());
+			
+			
+			return rack.getRackIdentifiers();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new ArrayList<Rack>();
+		}
+	}
+	
 }
