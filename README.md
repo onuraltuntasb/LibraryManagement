@@ -143,15 +143,15 @@ Some credits for this project
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/contributors/onuraltuntasb/LibraryManagement-parent.svg?style=for-the-badge
-[contributors-url]: https://github.com/onuraltuntasb/LibraryManagement-parent/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/onuraltuntasb/LibraryManagement-parent.svg?style=for-the-badge
-[forks-url]: https://github.com/onuraltuntasb/LibraryManagement-parent/network/members
-[stars-shield]: https://img.shields.io/github/stars/onuraltuntasb/LibraryManagement-parent.svg?style=for-the-badge
-[stars-url]: https://github.com/onuraltuntasb/LibraryManagement-parent/stargazers
-[issues-shield]: https://img.shields.io/github/issues/onuraltuntasb/LibraryManagement-parent.svg?style=for-the-badge
-[issues-url]: https://github.com/onuraltuntasb/LibraryManagement-parent/issues
-[license-shield]: https://img.shields.io/github/license/onuraltuntasb/LibraryManagement-parent.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/onuraltuntasb/LibraryManagement.svg?style=for-the-badge
+[contributors-url]: https://github.com/onuraltuntasb/LibraryManagement/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/onuraltuntasb/LibraryManagement.svg?style=for-the-badge
+[forks-url]: https://github.com/onuraltuntasb/LibraryManagement/network/members
+[stars-shield]: https://img.shields.io/github/stars/onuraltuntasb/LibraryManagement.svg?style=for-the-badge
+[stars-url]: https://github.com/onuraltuntasb/LibraryManagement/stargazers
+[issues-shield]: https://img.shields.io/github/issues/onuraltuntasb/LibraryManagement.svg?style=for-the-badge
+[issues-url]: https://github.com/onuraltuntasb/LibraryManagement/issues
+[license-shield]: https://img.shields.io/github/license/onuraltuntasb/LibraryManagement.svg?style=for-the-badge
 [license-url]: https://github.com/onuraltuntasb/LibraryManagement-parent/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: www.linkedin.com/in/onur-altuntas1
